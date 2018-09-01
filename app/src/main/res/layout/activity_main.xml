@@ -4,14 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/button"
+    <GridView
+        android:id="@+id/grid_view_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnWidth="110dp"
+        android:gravity="center"
+        android:numColumns="auto_fit" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Next"
-        tools:layout_editor_absoluteX="280dp"
-        tools:layout_editor_absoluteY="456dp" />
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.953"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.966"
+        app:srcCompat="@drawable/ic_arrow_forward_black_24dp" />
 
 </android.support.constraint.ConstraintLayout>
