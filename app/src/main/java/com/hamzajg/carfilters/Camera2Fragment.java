@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
@@ -727,6 +728,7 @@ public class Camera2Fragment extends Fragment
     private void configureTransform(int viewWidth, int viewHeight) {
         Activity activity = getActivity();
         if (null == mTextureView || null == mPreviewSize || null == activity) {
+            Log.i("configureTransform", "configureTransform");
             return;
         }
         int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
@@ -799,6 +801,7 @@ public class Camera2Fragment extends Fragment
         try {
             final Activity activity = getActivity();
             if (null == activity || null == mCameraDevice) {
+                Log.i("captureStillPicture", "captureStillPicture");
                 return;
             }
             // This is the CaptureRequest.Builder that we use to take a picture.
@@ -825,6 +828,8 @@ public class Camera2Fragment extends Fragment
                     showToast("Saved: " + mFile);
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
+                    Intent i = new Intent(getContext(),EditPictureActivity.class);
+                    startActivity(i);
                 }
             };
 
@@ -876,6 +881,7 @@ public class Camera2Fragment extends Fragment
         switch (view.getId()) {
             case R.id.picture: {
                 takePicture();
+                Log.i("takePicture", "takePicture");
                 break;
             }
         }
