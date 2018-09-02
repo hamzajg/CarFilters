@@ -17,7 +17,7 @@
         android:src="@drawable/number1"
         />
 
-    <ImageButton
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -25,7 +25,6 @@
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
         android:layout_marginBottom="25dp"
-        android:background="@null"
         android:src="@drawable/ic_add_a_photo_black_24dp"/>
 
 </RelativeLayout>
