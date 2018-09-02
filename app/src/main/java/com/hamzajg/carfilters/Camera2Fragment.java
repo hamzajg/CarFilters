@@ -42,6 +42,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -332,6 +333,8 @@ public class Camera2Fragment extends Fragment
         }
 
     };
+    private boolean mAutoFocusSupported;
+    private int selectedFilter;
 
     /**
      * Shows a {@link Toast} on the UI thread.
@@ -417,6 +420,12 @@ public class Camera2Fragment extends Fragment
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         view.findViewById(R.id.picture).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
+        ImageView iv = view.findViewById(R.id.filter_image);
+        Bundle extras = getActivity().getIntent().getExtras();
+        if(extras != null) {
+            selectedFilter = extras.getInt("selectedFilter");
+            iv.setImageResource(selectedFilter);
+        }
     }
 
     @Override
@@ -488,6 +497,14 @@ public class Camera2Fragment extends Fragment
                 Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
                 if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
                     continue;
+                }
+                int[] afAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
+
+                if (afAvailableModes.length == 0 || (afAvailableModes.length == 1
+                        && afAvailableModes[0] == CameraMetadata.CONTROL_AF_MODE_OFF)) {
+                    mAutoFocusSupported = false;
+                } else {
+                    mAutoFocusSupported = true;
                 }
 
                 StreamConfigurationMap map = characteristics.get(
@@ -755,7 +772,11 @@ public class Camera2Fragment extends Fragment
      * Initiate a still image capture.
      */
     private void takePicture() {
-        lockFocus();
+        if (mAutoFocusSupported) {
+            lockFocus();
+        } else {
+            captureStillPicture();
+        }
     }
 
     /**
@@ -828,8 +849,10 @@ public class Camera2Fragment extends Fragment
                     showToast("Saved: " + mFile);
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
-                    Intent i = new Intent(getContext(),EditPictureActivity.class);
-                    startActivity(i);
+                Intent i = new Intent(getContext(), EditPictureActivity.class);
+                    i.putExtra("picFile", mFile.toString());
+                    i.putExtra("selectedFilter", selectedFilter);
+                startActivity(i);
                 }
             };
 

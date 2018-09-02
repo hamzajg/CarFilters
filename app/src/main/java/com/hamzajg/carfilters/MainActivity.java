@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -23,16 +24,22 @@ public class MainActivity extends AppCompatActivity {
             R.drawable.number2,
             R.drawable.number3
     };
+    private int selectedPosition = -1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         androidGridView = (GridView) findViewById(R.id.grid_view_image);
         androidGridView.setAdapter(new ImageAdapterGridView(this));
-
+        androidGridView.setOnItemClickListener((adapterView, view, i, l) -> {
+            selectedPosition = i;
+        });
         FloatingActionButton btn = findViewById(R.id.floatingActionButton);
         btn.setOnClickListener((view) -> {
+            if(selectedPosition == -1)
+                return;
             Intent i = new Intent(getApplicationContext(), CameraActivity.class);
+            i.putExtra("selectedFilter", imageIDs[selectedPosition]);
             startActivity(i);
         });
     }
