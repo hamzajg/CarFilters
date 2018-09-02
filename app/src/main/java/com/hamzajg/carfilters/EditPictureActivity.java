@@ -37,8 +37,8 @@ public class EditPictureActivity extends AppCompatActivity {
             int[] viewCoords = new int[2];
             iv.getLocationOnScreen(viewCoords);
 
-            int imageX = 0 + viewCoords[0]; // viewCoods[0] is the X coordinate
-            int imageY = 0+ viewCoords[1]; // viewCoods[1] is the y coordinate
+            int imageX = (int) (event.getX() + viewCoords[0]); // viewCoods[0] is the X coordinate
+            int imageY = (int) (event.getY() + viewCoords[1]); // viewCoods[1] is the y coordinate
             Log.v("Real x >>>",imageX+"");
             Log.v("Real y >>>",imageY+"");
          return true;
