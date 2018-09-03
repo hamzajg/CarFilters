@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import java.io.File;
 
@@ -33,6 +34,9 @@ public class EditPictureActivity extends AppCompatActivity {
 
             }
         }
+        // RelativeLayout. though you can use xml RelativeLayout here too by `findViewById()`
+        RelativeLayout relativeLayout = findViewById(R.id.relativeLayout);
+
         iv.setOnTouchListener((v, event) -> {
             int[] viewCoords = new int[2];
             iv.getLocationOnScreen(viewCoords);
@@ -41,6 +45,19 @@ public class EditPictureActivity extends AppCompatActivity {
             int imageY = (int) (event.getY() + viewCoords[1]); // viewCoods[1] is the y coordinate
             Log.v("Real x >>>",imageX+"");
             Log.v("Real y >>>",imageY+"");
+// ImageView
+            ImageView imageView = new ImageView(EditPictureActivity.this);
+
+// Setting layout params to our RelativeLayout
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(125, 125);
+
+            imageView.setImageResource(R.drawable.ic_radio_button_unchecked_red_24dp);
+// Setting position of our ImageView
+            layoutParams.leftMargin = imageX;
+            layoutParams.topMargin = imageY;
+
+// Finally Adding the imageView to RelativeLayout and its position
+            relativeLayout.addView(imageView, layoutParams);
          return true;
         });
         FloatingActionButton cancel = findViewById(R.id.cancel);
