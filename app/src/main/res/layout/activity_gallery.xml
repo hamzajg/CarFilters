@@ -6,4 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".GalleryActivity">
 
+    <GridView
+        android:id="@+id/gallery"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnWidth="110dp"
+        android:gravity="center"
+        android:numColumns="auto_fit" />
 </android.support.constraint.ConstraintLayout>
