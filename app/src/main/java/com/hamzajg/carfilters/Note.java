@@ -1,19 +1,51 @@
 package com.hamzajg.carfilters;
 
-import android.graphics.Point;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
+import java.util.UUID;
+
+@Entity
 public class Note {
 
-    private Point point;
+    @NonNull
+    @PrimaryKey
+    private String uUID;
+    @NonNull
+    private String fileName;
+    private int x;
+    private int y;
     private String noteString;
 
-    public Note(Point point, String noteString) {
-        this.point = point;
+    public Note(@NonNull String fileName, int x, int y, String noteString) {
+        uUID = UUID.randomUUID().toString();
+        this.fileName = fileName;
+        this.x = x;
+        this.y = y;
         this.noteString = noteString;
     }
 
-    public Point getPoint() {
-        return point;
+    @NonNull
+    public String getUUID() {
+        return uUID;
+    }
+
+    public void setUUID(@NonNull String uUID) {
+        this.uUID = uUID;
+    }
+
+    @NonNull
+    public String getFileName() {
+        return fileName;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
     public String getNoteString() {

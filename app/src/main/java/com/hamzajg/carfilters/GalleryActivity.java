@@ -1,6 +1,7 @@
 package com.hamzajg.carfilters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +38,12 @@ public class GalleryActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
         gallery.setAdapter(new ImageAdapterGridView(this, filesPaths));
+
+        gallery.setOnItemClickListener((adapterView, view, i, l) -> {
+            Intent intent = new Intent(getApplicationContext(), EditPictureActivity.class);
+            intent.putExtra("picFile", filesPaths[i]);
+            startActivity(intent);
+        });
     }
 
     public class ImageAdapterGridView extends BaseAdapter {

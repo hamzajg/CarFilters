@@ -1,5 +1,6 @@
 package com.hamzajg.carfilters;
 
+import android.arch.persistence.room.Room;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,17 +20,35 @@ import android.widget.RelativeLayout;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 public class EditPictureActivity extends AppCompatActivity {
 
-    private ArrayList<Note> notes = new ArrayList<Note>();
+    private List<Note> notes = new ArrayList<Note>();
+    private static final String DATABASE_NAME = "note_db";
+    private NoteDatabase noteDatabase;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_picture);
+        noteDatabase = Room.databaseBuilder(getApplicationContext(),
+                NoteDatabase.class, DATABASE_NAME)
+                .fallbackToDestructiveMigration()
+                .build();
         ImageView iv = findViewById(R.id.image);
         ImageView ivfilter = findViewById(R.id.filter_image_edit);
+        // RelativeLayout. though you can use xml RelativeLayout here too by `findViewById()`
+        RelativeLayout relativeLayout = findViewById(R.id.relativeLayout);
+        FloatingActionButton cancel = findViewById(R.id.cancel);
+        cancel.setOnClickListener(view -> finish());
+        FloatingActionButton confirm = findViewById(R.id.confirm);
+        confirm.setOnClickListener(view -> {
+            persistData();
+            Intent i = new Intent(getApplicationContext(), GalleryActivity.class);
+            startActivity(i);
+        });
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             ivfilter.setImageResource(extras.getInt("selectedFilter"));
@@ -40,20 +59,24 @@ public class EditPictureActivity extends AppCompatActivity {
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 
                 iv.setImageBitmap(myBitmap);
-
+                fileName = imgFile.getAbsolutePath().substring(imgFile.getAbsolutePath().lastIndexOf("/") + 1, imgFile.getAbsolutePath().lastIndexOf("."));
+                if (!fileName.isEmpty())
+                    new Thread(() ->
+                    {
+                        notes = noteDatabase.daoAccess().fetchAllNotesByFileName(fileName);
+                        Log.i("notes", notes.size() + "");
+                        for(Note n : notes)  {
+                            addNoteRedCircle(relativeLayout, n.getX(), n.getY());
+                        }
+                    }).start();
             }
         }
-        // RelativeLayout. though you can use xml RelativeLayout here too by `findViewById()`
-        RelativeLayout relativeLayout = findViewById(R.id.relativeLayout);
 
         iv.setOnTouchListener((v, event) -> imageViewTouched(iv, relativeLayout, event));
-        FloatingActionButton cancel = findViewById(R.id.cancel);
-        cancel.setOnClickListener(view -> finish());
-        FloatingActionButton confirm = findViewById(R.id.confirm);
-        confirm.setOnClickListener(view -> {
-            Intent i = new Intent(getApplicationContext(), GalleryActivity.class);
-            startActivity(i);
-        });
+    }
+
+    private void persistData() {
+        new Thread(() -> noteDatabase.daoAccess().insertMultipleMovies (notes)).start();
     }
 
     private boolean imageViewTouched(ImageView iv, RelativeLayout relativeLayout, MotionEvent event) {
@@ -83,28 +106,32 @@ public class EditPictureActivity extends AppCompatActivity {
 
 // Set up the buttons
         builder.setPositiveButton("OK", (dialog, which) -> {
-            Note note = new Note(new Point(x, y), input.getText().toString());
+            Note note = new Note(fileName, x, y, input.getText().toString());
             if (note != null) {
                 notes.add(note);
-// ImageView
-                ImageView imageView = new ImageView(EditPictureActivity.this);
-
-// Setting layout params to our RelativeLayout
-                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(125, 125);
-
-                imageView.setImageResource(R.drawable.ic_radio_button_unchecked_red_24dp);
-// Setting position of our ImageView
-                layoutParams.leftMargin = x;
-                layoutParams.topMargin = y;
-
-// Finally Adding the imageView to RelativeLayout and its position
-                relativeLayout.addView(imageView, layoutParams);
+                addNoteRedCircle(relativeLayout, x, y);
 
             }
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         builder.show();
+    }
+
+    private void addNoteRedCircle(RelativeLayout relativeLayout, int x, int y) {
+        // ImageView
+        ImageView imageView = new ImageView(EditPictureActivity.this);
+
+// Setting layout params to our RelativeLayout
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(125, 125);
+
+        imageView.setImageResource(R.drawable.ic_radio_button_unchecked_red_24dp);
+// Setting position of our ImageView
+        layoutParams.leftMargin = x;
+        layoutParams.topMargin = y;
+
+// Finally Adding the imageView to RelativeLayout and its position
+        relativeLayout.addView(imageView, layoutParams);
     }
 
     @Override
