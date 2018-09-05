@@ -15,14 +15,28 @@ import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
     GridView androidGridView;
+    GridView additionalPictures;
 
     Integer[] imageIDs = {
-            R.drawable.number1,
-            R.drawable.number2,
-            R.drawable.number3,
-            R.drawable.number1,
-            R.drawable.number2,
-            R.drawable.number3
+            R.drawable.face_1,
+            R.drawable.face_2,
+            R.drawable.face_3,
+            R.drawable.face_4,
+            R.drawable.face_5,
+            R.drawable.face_6
+    };
+    Integer[] freePicturesIDs = {
+            R.drawable.free_picture,
+            R.drawable.free_picture,
+            R.drawable.free_picture,
+            R.drawable.free_picture,
+            R.drawable.free_picture,
+            R.drawable.free_picture,
+            R.drawable.free_picture,
+            R.drawable.free_picture,
+            R.drawable.free_picture,
+            R.drawable.free_picture,
+            R.drawable.free_picture
     };
     private int selectedPosition = -1;
     @Override
@@ -30,7 +44,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         androidGridView = (GridView) findViewById(R.id.grid_view_image);
-        androidGridView.setAdapter(new ImageAdapterGridView(this));
+        androidGridView.setAdapter(new ImageAdapterGridView(this, imageIDs));
+        additionalPictures = (GridView) findViewById(R.id.add_grid_view_image);
+        additionalPictures.setAdapter(new ImageAdapterGridView(this, freePicturesIDs));
         androidGridView.setOnItemClickListener((adapterView, view, i, l) -> {
             selectedPosition = i;
         });
@@ -46,13 +62,14 @@ public class MainActivity extends AppCompatActivity {
 
     public class ImageAdapterGridView extends BaseAdapter {
         private Context mContext;
-
-        public ImageAdapterGridView(Context c) {
+        private Integer[] mImages;
+        public ImageAdapterGridView(Context c, Integer[] images) {
             mContext = c;
+            mImages = images;
         }
 
         public int getCount() {
-            return imageIDs.length;
+            return mImages.length;
         }
 
         public Object getItem(int position) {
@@ -68,13 +85,13 @@ public class MainActivity extends AppCompatActivity {
 
             if (convertView == null) {
                 mImageView = new ImageView(mContext);
-                mImageView.setLayoutParams(new GridView.LayoutParams(130, 130));
-                mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                mImageView.setPadding(16, 16, 16, 16);
+                mImageView.setLayoutParams(new GridView.LayoutParams(250, 250));
+                mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                mImageView.setPadding(3, 3, 3, 3);
             } else {
                 mImageView = (ImageView) convertView;
             }
-            mImageView.setImageResource(imageIDs[position]);
+            mImageView.setImageResource(mImages[position]);
             return mImageView;
         }
     }

@@ -7,4 +7,6 @@
     <string name="take_picture">Take Picture</string>
     <string name="request_permission">This sample needs camera permission.</string>
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+    <string name="mandatory_pictures">Mandatory Pictures</string>
+    <string name="additional_pictures">Additional Pictures</string>
 </resources>
