@@ -28,6 +28,7 @@ public class EditPictureActivity extends AppCompatActivity {
     private static final String DATABASE_NAME = "note_db";
     private NoteDatabase noteDatabase;
     private String fileName;
+    private boolean isChanged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +77,7 @@ public class EditPictureActivity extends AppCompatActivity {
     }
 
     private void persistData() {
+        if(isChanged)
         new Thread(() -> noteDatabase.daoAccess().insertMultipleMovies (notes)).start();
     }
 
@@ -108,6 +110,7 @@ public class EditPictureActivity extends AppCompatActivity {
         builder.setPositiveButton("OK", (dialog, which) -> {
             Note note = new Note(fileName, x, y, input.getText().toString());
             if (note != null) {
+                isChanged = true;
                 notes.add(note);
                 addNoteRedCircle(relativeLayout, x, y);
 
