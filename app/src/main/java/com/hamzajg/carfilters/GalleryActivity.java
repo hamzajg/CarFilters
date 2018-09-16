@@ -16,6 +16,7 @@ import java.io.File;
 
 public class GalleryActivity extends AppCompatActivity {
     GridView gallery;
+    public static final int GALLERY_REQUEST = 1;
 
     private File[] files;
     private String[] filesPaths;
@@ -44,6 +45,11 @@ public class GalleryActivity extends AppCompatActivity {
             intent.putExtra("picFile", filesPaths[i]);
             startActivity(intent);
         });
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        super.startActivityForResult(intent, requestCode);
     }
 
     public class ImageAdapterGridView extends BaseAdapter {

@@ -3,9 +3,13 @@ package com.hamzajg.carfilters;
 import android.arch.persistence.room.Room;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Point;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -48,18 +52,24 @@ public class EditPictureActivity extends AppCompatActivity {
         confirm.setOnClickListener(view -> {
             persistData();
             Intent i = new Intent(getApplicationContext(), GalleryActivity.class);
-            startActivity(i);
+            startActivityForResult(i, GalleryActivity.GALLERY_REQUEST);
         });
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            ivfilter.setImageResource(extras.getInt("selectedFilter"));
-            File imgFile = new File(extras.getString("picFile"));
+            int rotation = extras.getInt("rotation");
 
+//            ivfilter.setImageResource(extras.getInt("selectedFilter"));
+            Bitmap bMap = BitmapFactory.decodeResource(getResources(),extras.getInt("selectedFilter"));
+            if (bMap != null)
+                ivfilter.setImageBitmap(rotateImage(bMap, 90));
+
+            File imgFile = new File(extras.getString("picFile"));
             if (imgFile.exists()) {
 
                 Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 
-                iv.setImageBitmap(myBitmap);
+                iv.setImageBitmap(rotateImage(myBitmap, 90));
+
                 fileName = imgFile.getAbsolutePath().substring(imgFile.getAbsolutePath().lastIndexOf("/") + 1, imgFile.getAbsolutePath().lastIndexOf("."));
                 if (!fileName.isEmpty())
                     new Thread(() ->
@@ -74,6 +84,17 @@ public class EditPictureActivity extends AppCompatActivity {
         }
 
         iv.setOnTouchListener((v, event) -> imageViewTouched(iv, relativeLayout, event));
+    }
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix,
+                true);
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        super.startActivityForResult(intent, requestCode);
     }
 
     private void persistData() {

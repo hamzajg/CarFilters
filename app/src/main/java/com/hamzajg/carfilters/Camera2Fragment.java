@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -425,9 +427,22 @@ public class Camera2Fragment extends Fragment
         Bundle extras = getActivity().getIntent().getExtras();
         if(extras != null) {
             selectedFilter = extras.getInt("selectedFilter");
-            iv.setImageResource(selectedFilter);
+//            iv.setImageResource(selectedFilter);
+
+            Bitmap bMap = BitmapFactory.decodeResource(getResources(),extras.getInt("selectedFilter"));
+
+            // Orientation
+            int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+            iv.setImageBitmap(rotateImage(bMap, getOrientation(rotation)));
         }
     }
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix,
+                true);
+    }
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -853,6 +868,7 @@ public class Camera2Fragment extends Fragment
                 Intent i = new Intent(getContext(), EditPictureActivity.class);
                     i.putExtra("picFile", mFile.toString());
                     i.putExtra("selectedFilter", selectedFilter);
+                    i.putExtra("rotation", rotation);
                 startActivity(i);
                 }
             };
