@@ -34,7 +34,11 @@ app/src/main/java/com/hamzajg/carfilters/
   Camera2Fragment.java    Camera2 API: capture, ImageReader, SurfaceTexture
                           (~1050 lines — the core)
   EditPictureActivity.java photo edit: filters, rotate (filter picker
-                          partially commented out)
+                          partially commented out) + photo note CRUD:
+                          tap-to-place markers, tap-marker dialog
+                          (view/edit/delete), idempotent save
+                          (delete-by-fileName + re-insert in one
+                          transaction), empty-note rejection
   GalleryActivity.java    saved-photos gallery
   AutoFitTextureView.java aspect-fit preview surface
   Note.java               Room @Entity: UUID, fileName, x, y, noteString
@@ -50,7 +54,14 @@ app/build.gradle          SDK levels, Room deps (runtime+compiler 1.1.1)
 
 Room `Note` table: annotation pinned to a photo (`fileName`) at `(x,y)`
 with `noteString` text. `DaoAccess` queries notes per fileName — the
-"stick a note on a photo" feature.
+"stick a note on a photo" feature. As of `photo-notes` (specs/photo-notes,
+PRs #7–#9) the CRUD path is complete end-to-end: markers are `ImageView`s
+tagged with the note UUID, tapping one opens a dialog with Edit/Delete/
+Cancel, edits and deletes go straight to Room, and saving is idempotent
+(delete-by-fileName + re-insert inside `runInTransaction`, re-entry
+blocked by a `saving` flag). Empty/whitespace note text is rejected.
+Caveat: all runtime behaviour is Room/UI — no automated coverage;
+pending human on-device gate **G1** (see specs/photo-notes/GATES.md).
 
 ## Conventions
 
@@ -73,6 +84,11 @@ with `noteString` text. `DaoAccess` queries notes per fileName — the
   are partially implemented.
 - Room is `androidx.room` 2.6.1 (runtime + room-compiler annotationProcessor).
 - `Note` uses field `uUID` (odd casing) — match it.
+- Photo-note runtime behaviour (save idempotency, marker CRUD, empty-note
+  rejection) has **no automated test coverage** — JVM unit tests can't
+  reach Room/touch code and CI has no emulator. Human gate G1 in
+  `specs/photo-notes/GATES.md` is the only runtime proof; don't claim the
+  feature verified until it passes.
 - Local clone may sit on `fix/build-wrapper-and-ci` — branch from
   `origin/master`.
 
