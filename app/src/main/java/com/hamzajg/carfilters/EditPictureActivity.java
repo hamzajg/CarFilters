@@ -156,7 +156,13 @@ public class EditPictureActivity extends AppCompatActivity {
 
 // Set up the buttons
         builder.setPositiveButton("OK", (dialog, which) -> {
-            Note note = new Note(fileName, x, y, input.getText().toString());
+            String text = input.getText().toString().trim();
+            // Empty/whitespace-only notes are rejected — no Note, no marker.
+            if (text.isEmpty()) {
+                Toast.makeText(this, "Note can't be empty", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Note note = new Note(fileName, x, y, text);
             if (note != null) {
                 isChanged = true;
                 notes.add(note);
@@ -212,7 +218,13 @@ public class EditPictureActivity extends AppCompatActivity {
         input.setText(note.getNoteString());
         builder.setView(input);
         builder.setPositiveButton("OK", (dialog, which) -> {
-            note.setNoteString(input.getText().toString());
+            String text = input.getText().toString().trim();
+            // Same rule as note creation: empty/whitespace keeps the old text.
+            if (text.isEmpty()) {
+                Toast.makeText(this, "Note can't be empty", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            note.setNoteString(text);
             // Update is immediate (not part of the save-all persistData),
             // so it runs off the main thread; the in-memory note already
             // carries the new text for the next save.
