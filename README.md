@@ -1,5 +1,10 @@
 # CarFilters
 
+> **Correction:** despite the name, this is a camera + photo app (Camera2
+> capture, photo filters, photo annotations in Room) — not a car-filtering
+> app. The description below is the original (incorrect) README text; see
+> `AGENTS.md` for the accurate one.
+
 An Android app for browsing and filtering cars.
 
 ## What it does
