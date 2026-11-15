@@ -17,6 +17,8 @@ public interface DaoAccess {
     void insertMultipleMovies (List<Note> noteList);
     @Query("SELECT * FROM Note WHERE fileName = :fileName")
     List<Note> fetchAllNotesByFileName(String fileName);
+    @Query("DELETE FROM Note WHERE fileName = :fileName")
+    void deleteNotesByFileName(String fileName);
     @Update
     void updateNote (Note note);
     @Delete

@@ -21,18 +21,26 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EditPictureActivity extends AppCompatActivity {
 
     private List<Note> notes = new ArrayList<Note>();
+    private final Map<String, ImageView> markerViews = new HashMap<>();
     private static final String DATABASE_NAME = "note_db";
     private NoteDatabase noteDatabase;
     private String fileName;
     private boolean isChanged;
+    // notesLoaded guards user taps until the DB read has been applied on
+    // the main thread; saving prevents persistData from double-firing.
+    private boolean notesLoaded;
+    private boolean saving;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +82,15 @@ public class EditPictureActivity extends AppCompatActivity {
                 if (!fileName.isEmpty())
                     new Thread(() ->
                     {
-                        notes = noteDatabase.daoAccess().fetchAllNotesByFileName(fileName);
-                        Log.i("notes", notes.size() + "");
-                        for(Note n : notes)  {
-                            addNoteRedCircle(relativeLayout, n.getX(), n.getY());
-                        }
+                        List<Note> loadedNotes = noteDatabase.daoAccess().fetchAllNotesByFileName(fileName);
+                        Log.i("notes", loadedNotes.size() + "");
+                        runOnUiThread(() -> {
+                            notes = loadedNotes;
+                            for(Note n : notes)  {
+                                addNoteMarker(relativeLayout, n);
+                            }
+                            notesLoaded = true;
+                        });
                     }).start();
             }
         }
@@ -97,14 +109,29 @@ public class EditPictureActivity extends AppCompatActivity {
         super.startActivityForResult(intent, requestCode);
     }
 
+    // Idempotent save: delete all rows for this photo, then re-insert the
+    // current list — all inside one transaction, off the main thread.
+    // Re-entry is blocked by `saving` so confirm can't double-fire.
     private void persistData() {
-        if(isChanged)
-        new Thread(() -> noteDatabase.daoAccess().insertMultipleMovies (notes)).start();
+        if (!isChanged || saving)
+            return;
+        saving = true;
+        new Thread(() -> noteDatabase.runInTransaction(() -> {
+            noteDatabase.daoAccess().deleteNotesByFileName(fileName);
+            noteDatabase.daoAccess().insertMultipleMovies(notes);
+        })).start();
+        isChanged = false;
     }
 
     private boolean imageViewTouched(ImageView iv, RelativeLayout relativeLayout, MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN)
         {
+            // Taps during the async note load are ignored so they can't
+            // interleave with the loaded markers.
+            if (!notesLoaded) {
+                Toast.makeText(this, "Loading notes…", Toast.LENGTH_SHORT).show();
+                return true;
+            }
             int[] viewCoords = new int[2];
             iv.getLocationOnScreen(viewCoords);
 
@@ -133,7 +160,7 @@ public class EditPictureActivity extends AppCompatActivity {
             if (note != null) {
                 isChanged = true;
                 notes.add(note);
-                addNoteRedCircle(relativeLayout, x, y);
+                addNoteMarker(relativeLayout, note);
 
             }
         });
@@ -142,8 +169,9 @@ public class EditPictureActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void addNoteRedCircle(RelativeLayout relativeLayout, int x, int y) {
-        // ImageView
+    // Creates the red-circle marker for a note and tracks it by UUID so
+    // later waves can dispatch click/edit/delete on the marker view.
+    private ImageView addNoteMarker(RelativeLayout relativeLayout, Note note) {
         ImageView imageView = new ImageView(EditPictureActivity.this);
 
 // Setting layout params to our RelativeLayout
@@ -151,11 +179,14 @@ public class EditPictureActivity extends AppCompatActivity {
 
         imageView.setImageResource(R.drawable.ic_radio_button_unchecked_red_24dp);
 // Setting position of our ImageView
-        layoutParams.leftMargin = x;
-        layoutParams.topMargin = y;
+        layoutParams.leftMargin = note.getX();
+        layoutParams.topMargin = note.getY();
+        imageView.setTag(note.getUUID());
 
 // Finally Adding the imageView to RelativeLayout and its position
         relativeLayout.addView(imageView, layoutParams);
+        markerViews.put(note.getUUID(), imageView);
+        return imageView;
     }
 
     @Override
