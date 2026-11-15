@@ -8,8 +8,8 @@ Guidance for AI agents (and humans) working in this repository.
 **camera + photo app**, not a car app. It captures photos via Camera2,
 applies filters in an edit screen, browses a gallery, and stores
 photo annotations ("notes" with x/y coordinates) in Room.
-Stack: Java, Android (AGP 3.1.4 / Gradle 4.4), minSdk 21 / compile+target
-SDK 27, pre-AndroidX support library, Room 1.1.1 (`android.arch`).
+Stack: Java 17, Android (AGP 8.7.3 / Gradle 8.9), AndroidX,
+compileSdk/targetSdk 34, Room 2.6.1 (`androidx.room`).
 
 ## Commands
 
@@ -18,11 +18,11 @@ Verified 2026-11-13 against CI (`.github/workflows/ci.yml`) and build files.
 | Task | Command |
 |---|---|
 | Build APK | `sh gradlew :app:assembleDebug` |
-| Unit tests | `sh gradlew test --no-daemon` (CI: JDK 8 + SDK 27) |
+| Unit tests | `sh gradlew test --no-daemon` (CI: JDK 17 + SDK 34) |
 | Install | `gradle :app:installDebug` (README; wrapper now checked in) |
 
-Requires: **JDK 8** (AGP 3.1.4/Gradle 4.4), Android SDK **API 27 +
-build-tools 27.0.3**. Note: README says "no Gradle wrapper" — **stale**;
+Requires: **JDK 17** (AGP 8.x), Android SDK **API 34 +
+build-tools 34.0.0**; `local.properties` must set `sdk.dir`. Note: README says "no Gradle wrapper" — **stale**;
 `gradlew` is now checked in (added by the wrapper/CI repair).
 
 ## Architecture
@@ -54,8 +54,7 @@ with `noteString` text. `DaoAccess` queries notes per fileName — the
 
 ## Conventions
 
-- Pre-AndroidX imports (`android.support.*`, `android.arch.persistence.room`)
-  — match them; AndroidX migration is a separate project.
+- AndroidX imports (`androidx.*`, `androidx.room`) — post-migration.
 - Activities + fragments, no MVVM — `Camera2Fragment` is a plain Fragment
   with CameraDevice/CameraCaptureSession callbacks.
 - Java only, support-library era patterns.
@@ -64,14 +63,15 @@ with `noteString` text. `DaoAccess` queries notes per fileName — the
 ## Landmines
 
 - **Default branch is `master`, not `main`.**
-- **JDK 8 + SDK 27/build-tools 27.0.3 required** — CI pins them.
+- Modernized 2026-11: AGP 3.1.4→8.7.3, Gradle 4.4→8.9, SDK 27→34,
+  support libs→AndroidX, Room android.arch→androidx.room 2.6.1,
+  JDK 8→17.
 - **README misdescribes the app** ("browsing and filtering cars") — the
   code is a camera/photo-filter/annotation app; trust the code.
 - README says no wrapper — `gradlew` exists now (wrapper repair merged).
 - `EditPictureActivity` has commented-out filter-selection code — filters
   are partially implemented.
-- Room is `android.arch.persistence.room` 1.1.1 — old artifact group;
-  don't mix with `androidx.room`.
+- Room is `androidx.room` 2.6.1 (runtime + room-compiler annotationProcessor).
 - `Note` uses field `uUID` (odd casing) — match it.
 - Local clone may sit on `fix/build-wrapper-and-ci` — branch from
   `origin/master`.
