@@ -182,11 +182,60 @@ public class EditPictureActivity extends AppCompatActivity {
         layoutParams.leftMargin = note.getX();
         layoutParams.topMargin = note.getY();
         imageView.setTag(note.getUUID());
+// Markers are children of relativeLayout (a sibling overlay of the photo
+// ImageView), so their clicks never reach the photo's touch listener —
+// tapping a marker opens its note dialog instead of creating a new note.
+        imageView.setOnClickListener(v -> showNoteDialog(note, relativeLayout));
 
 // Finally Adding the imageView to RelativeLayout and its position
         relativeLayout.addView(imageView, layoutParams);
         markerViews.put(note.getUUID(), imageView);
         return imageView;
+    }
+
+    // Tapping a marker shows the note text with Edit / Delete / Cancel.
+    private void showNoteDialog(Note note, RelativeLayout relativeLayout) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Note");
+        builder.setMessage(note.getNoteString());
+        builder.setPositiveButton("Edit", (dialog, which) -> showEditNoteDialog(note, relativeLayout));
+        builder.setNegativeButton("Delete", (dialog, which) -> confirmDeleteNote(note, relativeLayout));
+        builder.setNeutralButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void showEditNoteDialog(Note note, RelativeLayout relativeLayout) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Edit note");
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(note.getNoteString());
+        builder.setView(input);
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            note.setNoteString(input.getText().toString());
+            // Update is immediate (not part of the save-all persistData),
+            // so it runs off the main thread; the in-memory note already
+            // carries the new text for the next save.
+            new Thread(() -> noteDatabase.daoAccess().updateNote(note)).start();
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void confirmDeleteNote(Note note, RelativeLayout relativeLayout) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete note?");
+        builder.setMessage(note.getNoteString());
+        builder.setPositiveButton("Delete", (dialog, which) -> {
+            new Thread(() -> noteDatabase.daoAccess().deleteNote(note)).start();
+            ImageView marker = markerViews.remove(note.getUUID());
+            if (marker != null) {
+                relativeLayout.removeView(marker);
+            }
+            notes.remove(note);
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
     }
 
     @Override
