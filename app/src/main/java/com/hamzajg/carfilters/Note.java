@@ -51,4 +51,8 @@ public class Note {
     public String getNoteString() {
         return noteString;
     }
+
+    public void setNoteString(String noteString) {
+        this.noteString = noteString;
+    }
 }
