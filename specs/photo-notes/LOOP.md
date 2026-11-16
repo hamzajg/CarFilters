@@ -1,8 +1,8 @@
 # Delivery Loop — photo-notes
 
 Status: blocked
-Iterations: 4
-Updated: 2026-11-15T20:44:18Z
+Iterations: 5
+Updated: 2026-11-16T11:27:35Z
 
 | Wave | Status | Branch | PR | Evidence | Updated |
 |------|--------|--------|----|----------|---------|
@@ -24,4 +24,4 @@ Updated: 2026-11-15T20:44:18Z
 - 2026-11-15T20:32:50Z complete wave 2 (#8): clean test + assembleDebug green; CI green; marker CRUD verified by build (Room/touch → gate G1)
 - 2026-11-15T20:32:56Z start wave 3 on feat/photo-notes-w3
 - 2026-11-15T20:38:58Z complete wave 3 (#9): clean test + assembleDebug green; CI green; all 3 waves done
-- 2026-11-15T20:44:18Z blocked: G1: on-device smoke test needed — install debug APK, open a photo in edit screen, add/tap/edit/delete a note, try empty 
+- 2026-11-15T20:44:18Z blocked: G1: on-device smoke test needed — install debug APK, open a photo in edit screen, add/tap/edit/delete a note, try empty
