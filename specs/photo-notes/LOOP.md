@@ -1,8 +1,8 @@
 # Delivery Loop — photo-notes
 
-Status: blocked
-Iterations: 5
-Updated: 2026-11-16T11:27:35Z
+Status: done
+Iterations: 7
+Updated: 2026-11-19T09:10:45Z
 
 | Wave | Status | Branch | PR | Evidence | Updated |
 |------|--------|--------|----|----------|---------|
@@ -14,7 +14,7 @@ Updated: 2026-11-16T11:27:35Z
 
 | Gate | Status | Evidence | Updated |
 |------|--------|----------|---------|
-| G1 | pending | — | — |
+| G1 | met | Emulator-5554 on-device smoke: empty note rejected (toast, no marker); add/edit/delete via marker dialogs verified; doub | 2026-11-19T09:03:51Z |
 
 ## Events
 
@@ -25,3 +25,7 @@ Updated: 2026-11-16T11:27:35Z
 - 2026-11-15T20:32:56Z start wave 3 on feat/photo-notes-w3
 - 2026-11-15T20:38:58Z complete wave 3 (#9): clean test + assembleDebug green; CI green; all 3 waves done
 - 2026-11-15T20:44:18Z blocked: G1: on-device smoke test needed — install debug APK, open a photo in edit screen, add/tap/edit/delete a note, try empty
+- 2026-11-19T09:03:51Z gate G1 met: Emulator-5554 on-device smoke: empty note rejected (toast, no marker); add/edit/delete via marker dialogs verified; doub
+- 2026-11-19T09:06:01Z resumed
+- 2026-11-19T09:06:04Z feature validated and shipped
+- 2026-11-19T09:10:45Z feature validated and shipped
